@@ -34,7 +34,11 @@ We are actively working on expanding model support to offer greater flexibility.
 
 ## How to Use
 
-1.  **Install the Extension:** Load the extension into your Chromium-based browser (Chrome, Edge, Brave, etc.).
+1.  **Install the Extension:**
+    *   Navigate to your browser's extensions page (e.g., `chrome://extensions` or `edge://extensions`).
+    *   Enable "Developer mode" (usually a toggle in the top-right corner).
+    *   Click "Load unpacked" and select the directory containing the BlueGoo extension files.
+    *   (Optional but recommended) Pin the BlueGoo extension icon to your browser toolbar for easy access to settings.
 2.  **Configure Settings:**
     *   Click the BlueGoo extension icon in your browser toolbar to open the Settings page.
     *   Enter your [OpenRouter API Key](https://openrouter.ai/keys).
