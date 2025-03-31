@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BlueGoo Settings</title> <!-- Updated Title -->
+  <link rel="stylesheet" href="style.css"> <!-- Link external stylesheet -->
+</head>
+<body id="options-page" class="theme-light"> <!-- Add ID and initial theme class -->
+  <h1>BlueGoo Settings</h1>
+
+  <label for="apiKey">OpenRouter API Key:</label>
+  <input type="password" id="apiKey" name="apiKey">
+
+  <label for="model">Select Model:</label>
+  <select id="model" name="model">
+    <!-- Add Gemini models supported by OpenRouter Vision endpoint -->
+    <option value="google/gemma-3-4b-it:free">Google Gemma 3 4B IT (Free)</option>
+    <option value="google/gemini-2.0-flash-exp:free">Google Gemini 2.0 Flash Exp (Free)</option>
+  </select>
+
+  <fieldset>
+      <legend>Overlay Theme:</legend>
+      <div class="radio-group">
+          <label>
+              <input type="radio" id="theme-light" name="theme" value="light" checked> Light
+          </label>
+          <label>
+              <input type="radio" id="theme-dark" name="theme" value="dark"> Dark
+          </label>
+      </div>
+  </fieldset>
+
+  <button id="save">Save Settings</button> <!-- Changed button text -->
+  <div id="status"></div>
+
+  <script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+/* BlueGoo Overlay Styles */
+
+#bluegoo-overlay {
+  /* Base styles - position, z-index, max-width set by JS */
+  position: absolute;
+  z-index: 2147483647;
+  padding: 15px; /* Reduced padding for a tighter look */
+  border-radius: 8px; /* Slightly larger radius */
+  font-size: 14px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; /* System font stack */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25); /* Enhanced shadow */
+  text-align: left;
+  line-height: 1.5;
+  box-sizing: border-box;
+  /* Bounding: max-width set by JS, add max-height and overflow */
+  max-height: 300px; /* Example max-height, adjust as needed */
+  overflow-y: auto; /* Add scrollbar if content exceeds max-height */
+  /* Theme colors set below */
+}
+
+/* --- Light Theme --- */
+#bluegoo-overlay.light {
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #222;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+#bluegoo-overlay.light button {
+  background-color: #eee;
+  color: #333;
+  border: 1px solid #ccc;
+}
+#bluegoo-overlay.light button:hover {
+  background-color: #ddd;
+}
+
+/* --- Dark Theme --- */
+#bluegoo-overlay.dark {
+  background-color: rgba(40, 40, 40, 0.95);
+  color: #eee;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+#bluegoo-overlay.dark button {
+  background-color: #555;
+  color: #eee;
+  border: 1px solid #777;
+}
+#bluegoo-overlay.dark button:hover {
+  background-color: #666;
+}
+
+/* --- Error State (Overrides theme slightly) --- */
+#bluegoo-overlay.error.light {
+  background-color: rgba(255, 220, 220, 0.95); /* Lighter red for light theme */
+  color: #800;
+  border-color: rgba(200, 0, 0, 0.3);
+}
+#bluegoo-overlay.error.dark {
+  background-color: rgba(100, 40, 40, 0.95); /* Darker red for dark theme */
+  color: #fcc;
+  border-color: rgba(255, 100, 100, 0.3);
+}
+/* Ensure button is visible in error state */
+#bluegoo-overlay.error.light button {
+    background-color: #fdd; border-color: #fbb; color: #800;
+}
+#bluegoo-overlay.error.dark button {
+    background-color: #833; border-color: #a55; color: #fcc;
+}
+
+#bluegoo-overlay p {
+  margin: 0; /* Remove default margin */
+  padding: 0;
+  word-wrap: break-word;
+  margin-bottom: 8px; /* Space below the text */
+  /* Add spacing between paragraphs if needed */
+  /* margin-bottom: 1em; */
+}
+
+/* Styles for the old absolute positioned 'X' button removed */
+/* --- Bottom Button Container --- */
+#bluegoo-overlay .button-container {
+  display: flex; /* Use flexbox for alignment */
+  justify-content: center; /* Center buttons horizontally */
+  gap: 10px; /* Space between buttons */
+  margin-top: 12px; /* Space above the container (adjust as needed) */
+  margin-bottom: 5px; /* Space below the container */
+}
+
+/* --- Shared Action Button Styles (Copy & Close) --- */
+#bluegoo-overlay .action-button {
+  padding: 4px 10px; /* Adjust padding for better text centering */
+  font-size: 12px;
+  line-height: 1.4; /* Helps vertical centering */
+  cursor: pointer;
+  border-radius: 4px;
+  border-width: 1px;
+  border-style: solid;
+  text-align: center;
+  /* Remove individual margins, handled by container gap */
+}
+
+/* Action button theme styles */
+#bluegoo-overlay.light .action-button {
+  background-color: #e0e8ff; /* Light blue */
+  color: #0033cc;
+  border-color: #b3c6ff;
+}
+#bluegoo-overlay.light .action-button:hover {
+  background-color: #cddaff;
+}
+/* Add specific style for light close button if needed, e.g., different color */
+#bluegoo-overlay.light .close-button {
+  /* background-color: #ffe0e0; */ /* Example: light red */
+  /* color: #cc0000; */
+  /* border-color: #ffb3b3; */
+}
+#bluegoo-overlay.light .close-button:hover {
+   /* background-color: #ffcfcf; */
+}
+#bluegoo-overlay.dark .action-button {
+  background-color: #3a4a7a; /* Darker blue */
+  color: #e0e8ff;
+  border-color: #5a6aa0;
+}
+#bluegoo-overlay.dark .action-button:hover {
+  background-color: #4a5a8a;
+}
+/* Add specific style for dark close button if needed */
+#bluegoo-overlay.dark .close-button {
+  /* background-color: #7a3a3a; */ /* Example: darker red */
+  /* color: #ff e0e0; */
+  /* border-color: #a05a5a; */
+}
+#bluegoo-overlay.dark .close-button:hover {
+   /* background-color: #8a4a4a; */
+}
+
+
+/* ================= Options Page Styles ================= */
+
+body#options-page {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern font */
+  padding: 25px;
+  min-width: 350px;
+  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth theme transition */
+  background-color: #e8f0fe; /* Light blue background */
+  color: #333;
+}
+
+/* --- Options Page Theme Variations --- */
+body#options-page.theme-light {
+  background-color: #e8f0fe;
+  color: #333;
+}
+body#options-page.theme-dark {
+  background-color: #1a2a45; /* Dark blue background */
+  color: #e0e8ff;
+}
+body#options-page.theme-dark label,
+body#options-page.theme-dark legend {
+  color: #c0d0ff; /* Lighter text for dark theme */
+}
+body#options-page.theme-dark input[type="text"],
+body#options-page.theme-dark input[type="password"],
+body#options-page.theme-dark select {
+    background-color: #2a3a55;
+    color: #e0e8ff;
+    border-color: #5a6aa0;
+}
+body#options-page.theme-dark fieldset {
+    border-color: #5a6aa0;
+}
+body#options-page.theme-dark button {
+    background-color: #4a6a9a;
+    color: #e0e8ff;
+    border-color: #6a8ac0;
+}
+body#options-page.theme-dark button:hover {
+    background-color: #5a7ab0;
+}
+body#options-page.theme-dark #status.success {
+    color: #90ee90; /* Light green */
+}
+body#options-page.theme-dark #status.error {
+    color: #ff9999; /* Light red */
+}
+
+
+/* --- General Options Page Elements --- */
+#options-page h1 {
+    color: #0033cc; /* Blue heading */
+    text-align: center;
+    margin-bottom: 25px;
+    font-weight: 600;
+}
+body#options-page.theme-dark h1 {
+    color: #80bfff; /* Lighter blue for dark theme */
+}
+
+#options-page label {
+  display: block;
+  margin-bottom: 8px; /* Increased spacing */
+  font-weight: 500; /* Slightly less bold */
+  color: #002288; /* Darker blue label */
+}
+
+#options-page input[type="text"],
+#options-page input[type="password"],
+#options-page select {
+  width: 100%;
+  padding: 10px; /* More padding */
+  margin-bottom: 18px;
+  box-sizing: border-box;
+  border: 1px solid #b3c6ff; /* Blue border */
+  border-radius: 5px; /* Rounded corners */
+  background-color: #fff;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+#options-page input:focus,
+#options-page select:focus {
+    outline: none;
+    border-color: #0033cc; /* Highlight focus */
+    box-shadow: 0 0 5px rgba(0, 51, 204, 0.3);
+}
+
+#options-page .radio-group label {
+  display: inline-block;
+  margin-right: 15px;
+  font-weight: normal;
+  color: #333; /* Reset color for radio labels */
+  cursor: pointer;
+}
+body#options-page.theme-dark .radio-group label {
+    color: #e0e8ff; /* Dark theme radio labels */
+}
+
+#options-page .radio-group input[type="radio"] {
+  width: auto;
+  margin-right: 5px;
+  vertical-align: middle;
+  cursor: pointer;
+  accent-color: #0033cc; /* Style the radio button itself */
+}
+
+#options-page fieldset {
+  border: 1px solid #b3c6ff; /* Blue border */
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+
+#options-page legend {
+  font-weight: 600; /* Bolder legend */
+  color: #0033cc; /* Blue legend */
+  padding: 0 5px;
+}
+
+#options-page button {
+  padding: 12px 20px; /* Larger button */
+  cursor: pointer;
+  background-color: #0052cc; /* Primary blue */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+  display: block; /* Make button block level */
+  width: 100%; /* Full width */
+  margin-top: 10px; /* Space above button */
+}
+
+#options-page button:hover {
+  background-color: #003da5; /* Darker blue on hover */
+}
+
+#options-page #status {
+  margin-top: 20px;
+  font-weight: bold;
+  text-align: center; /* Center status message */
+  height: 1.2em; /* Reserve space */
+}
+#options-page #status.success {
+    color: #008000; /* Green */
+}
+#options-page #status.error {
+    color: #cc0000; /* Red */
+}

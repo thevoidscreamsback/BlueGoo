@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "BlueGoo Image Explainer",
+  "version": "0.4.1",
+  "description": "Right-click an image to get a description or text transcription using OpenRouter.",
+  "permissions": [
+    "contextMenus",
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://openrouter.ai/api/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["style.css"]
+    }
+  ],
+  "action": {
+    "default_popup": "options.html",
+    "default_title": "BlueGoo Settings"
+  }
+}
