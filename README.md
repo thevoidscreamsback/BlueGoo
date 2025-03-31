@@ -42,7 +42,7 @@ We are actively working on expanding model support to offer greater flexibility.
 2.  **Configure Settings:**
     *   Click the BlueGoo extension icon in your browser toolbar to open the Settings page.
     *   Enter your [OpenRouter API Key](https://openrouter.ai/keys).
-    *   Select the AI Model you wish to use (ensure it's a model compatible with vision tasks).
+    *   Select the AI Model you wish to use.
     *   Choose your preferred Overlay Theme (Light or Dark).
     *   Click "Save Settings".
 3.  **Generate Description:**
