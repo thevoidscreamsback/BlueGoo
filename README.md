@@ -20,7 +20,7 @@ BlueGoo is a browser extension designed as an accessibility tool to make interac
 
 Currently, BlueGoo exclusively uses free versions of Google AI models via OpenRouter to ensure consistent performance and reliability. We offer two primary options:
 
-*   **Google Gemini Flash:** A fast and capable model suitable for general image understanding tasks.
+*   **Google Gemini Flash:** A fast and capable model suitable for general image understanding tasks. **(Recommended for best balance of speed and quality)**
 *   **Google Gemma 3 (4B):** A smaller, highly efficient 4-billion parameter model designed to minimize environmental impact while still providing effective image analysis.
 
 This focused approach allows us to provide a stable and predictable user experience.
