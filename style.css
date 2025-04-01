@@ -18,7 +18,46 @@
   /* Theme colors set below */
 }
 
-/* --- Light Theme --- */
+/* --- Waiting Overlay Styles (Similar base, simpler content) --- */
+#bluegoo-waiting-overlay {
+  /* Inherits most base styles from #bluegoo-overlay if defined globally, */
+  /* but safer to redefine key ones */
+  position: absolute;
+  z-index: 2147483647;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 12px; /* Make waiting text smaller */
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  text-align: center; /* Center the waiting text */
+  line-height: 1.5;
+  box-sizing: border-box;
+  /* No max-height or overflow needed for simple text */
+  /* Add fallback background/border in case theme class fails */
+  background-color: rgba(255, 255, 255, 0.95); /* Default to light */
+  border: 1px solid rgba(0,0,0,0.1);       /* Default to light */
+  color: #222;                             /* Default to light */
+}
+
+#bluegoo-waiting-overlay p {
+  margin: 0;
+  padding: 0;
+}
+
+/* Waiting Overlay Theme Colors (Match main overlay) */
+#bluegoo-waiting-overlay.light {
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #222;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+#bluegoo-waiting-overlay.dark {
+  background-color: rgba(40, 40, 40, 0.95);
+  color: #eee;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+
+/* --- Light Theme (Main Overlay) --- */
 #bluegoo-overlay.light {
   background-color: rgba(255, 255, 255, 0.95);
   color: #222;
@@ -74,6 +113,16 @@
   margin-bottom: 8px; /* Space below the text */
   /* Add spacing between paragraphs if needed */
   /* margin-bottom: 1em; */
+}
+
+/* Style for the disclaimer text */
+#bluegoo-overlay .disclaimer-text {
+  font-size: 0.85em; /* Smaller font size */
+  font-style: italic; /* Italic style */
+  margin-top: 10px; /* Space above the disclaimer */
+  margin-bottom: 0; /* No space below before buttons */
+  opacity: 0.8; /* Slightly faded */
+  text-align: center; /* Center the disclaimer */
 }
 
 /* Styles for the old absolute positioned 'X' button removed */

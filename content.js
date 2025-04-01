@@ -1,7 +1,8 @@
 console.log("BlueGoo content script loaded.");
 
 // --- Globals ---
-let currentOverlay = null; // Keep track of the currently displayed overlay
+let currentOverlay = null; // Keep track of the main description/error overlay
+let waitingOverlay = null; // Keep track of the "Please wait" overlay
 
 // --- Listener for messages from background script ---
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -36,7 +37,9 @@ function handlePrepareImage(imageUrl, sendResponse) {
     return;
   }
 
-  // (Loading indicator was previously removed)
+  // Display "Please wait" overlay immediately
+  displayWaitingOverlay(imageUrl);
+
   // Tell background script to start the actual fetching and API call
   console.log("Asking background script to start processing:", imageUrl);
   chrome.runtime.sendMessage({
@@ -89,7 +92,8 @@ function findImageElement(srcUrl) {
 // Updated function to handle theme and centering/bounding
 async function displayOverlay(imageUrl, text, isError) {
   // (Loading indicator call was previously removed)
-  removeOverlay(); // Remove any existing overlay first
+  removeWaitingOverlay(); // Remove the waiting overlay first
+  removeOverlay(); // Remove any existing main overlay
 
   const targetImage = findImageElement(imageUrl);
   if (!targetImage) {
@@ -167,7 +171,13 @@ async function displayOverlay(imageUrl, text, isError) {
   buttonContainer.appendChild(newCloseButton);
 
   overlay.appendChild(textElement);
-  overlay.appendChild(buttonContainer); // Append the container with both buttons
+
+  // Add disclaimer text
+  const disclaimerElement = document.createElement('p');
+  disclaimerElement.textContent = 'BlueGoo uses generative AI and can make mistakes.';
+  disclaimerElement.classList.add('disclaimer-text'); // Add class for styling
+  overlay.appendChild(buttonContainer); // Append the container with both buttons first
+  overlay.appendChild(disclaimerElement); // Then append the disclaimer
   // --- Positioning Logic (Centering) ---
   // Append to body temporarily to calculate overlay dimensions
   overlay.style.visibility = 'hidden'; // Hide while calculating
@@ -199,11 +209,85 @@ async function displayOverlay(imageUrl, text, isError) {
   console.log(`Overlay ${isError ? 'error' : 'description'} displayed for:`, imageUrl);
 }
 
+// --- Waiting Overlay Functions ---
+
+async function displayWaitingOverlay(imageUrl) {
+  removeWaitingOverlay(); // Remove any previous waiting overlay
+  removeOverlay(); // Also remove main overlay if it exists for some reason
+
+  const targetImage = findImageElement(imageUrl);
+  if (!targetImage) {
+    console.error("Cannot display waiting overlay: Target image not found for", imageUrl);
+    return;
+  }
+
+  // Get theme setting from storage to apply correct theme
+  const settings = await chrome.storage.sync.get({ selectedTheme: 'light' });
+  const theme = settings.selectedTheme;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'bluegoo-waiting-overlay'; // Use a different ID
+  overlay.classList.add(theme); // Apply theme
+
+  // Basic styles - similar to main overlay, position/z-index set by JS/CSS
+  overlay.style.position = 'absolute';
+  overlay.style.zIndex = '2147483647'; // Max z-index
+
+  const textElement = document.createElement('p');
+  textElement.textContent = 'Please wait a few moments...';
+  textElement.style.margin = '0'; // Let CSS handle margins/padding
+
+  overlay.appendChild(textElement);
+
+  // --- Positioning Logic (Centering - same as main overlay) ---
+  const imgRect = targetImage.getBoundingClientRect();
+  const paddingValue = 15; // Match main overlay padding for consistency if needed
+  overlay.style.maxWidth = `${Math.max(100, imgRect.width - paddingValue * 2)}px`;
+
+  // Append temporarily to calculate dimensions
+  overlay.style.visibility = 'hidden';
+  document.body.appendChild(overlay);
+  const overlayWidth = overlay.offsetWidth;
+  const overlayHeight = overlay.offsetHeight;
+
+  const imgCenterX = imgRect.left + imgRect.width / 2;
+  const imgCenterY = imgRect.top + imgRect.height / 2;
+
+  let overlayLeft = imgCenterX - overlayWidth / 2 + window.scrollX;
+  let overlayTop = imgCenterY - overlayHeight / 2 + window.scrollY;
+
+  overlayLeft = Math.max(5 + window.scrollX, overlayLeft);
+  overlayTop = Math.max(5 + window.scrollY, overlayTop);
+
+  overlay.style.left = `${overlayLeft}px`;
+  overlay.style.top = `${overlayTop}px`;
+  overlay.style.visibility = 'visible';
+
+  // Re-append (or just ensure it's in the body)
+  // document.body.appendChild(overlay); // Already appended
+  waitingOverlay = overlay; // Store reference
+
+  console.log("Waiting overlay displayed for:", imageUrl);
+}
+
+function removeWaitingOverlay() {
+  if (waitingOverlay) {
+    waitingOverlay.remove();
+    waitingOverlay = null;
+    console.log("Waiting overlay removed.");
+  }
+}
+
+// --- Main Overlay Removal ---
+
 function removeOverlay() {
+  // Also ensure waiting overlay is removed if this is called directly
+  removeWaitingOverlay();
+
   if (currentOverlay) {
     currentOverlay.remove();
     currentOverlay = null;
-    console.log("Previous overlay removed.");
+    console.log("Previous main overlay removed.");
   }
 }
 

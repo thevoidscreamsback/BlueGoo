@@ -72,10 +72,12 @@ async function fetchImageDataAndCallApi(imageUrl, tabId) {
     // 1. Get Settings (API Key and Model)
     const storageResult = await chrome.storage.sync.get({
         openRouterApiKey: '', // Default empty
-        selectedModel: 'google/gemini-2.0-flash-exp:free' // Default model (Updated)
+        selectedModel: 'google/gemini-2.0-flash-exp:free', // Default model (Updated)
+        selectedLanguage: 'en' // Default language
     });
     apiKey = storageResult.openRouterApiKey;
-    const selectedModel = storageResult.selectedModel; // Get the selected model
+    const selectedModel = storageResult.selectedModel;
+    const selectedLanguage = storageResult.selectedLanguage; // Get the selected language
     if (!apiKey) {
       console.error("OpenRouter API key not set when trying to fetch image.");
       // Notify user - maybe open options page? Or send error to content script?
@@ -113,7 +115,7 @@ async function fetchImageDataAndCallApi(imageUrl, tabId) {
 
     // 4. Call OpenRouter API
     // 4. Call OpenRouter API, passing the selected model
-    await callOpenRouter(imageDataUrl, apiKey, selectedModel, tabId, imageUrl);
+    await callOpenRouter(imageDataUrl, apiKey, selectedModel, selectedLanguage, tabId, imageUrl); // Pass language
 
   } catch (error) {
     console.error("Error fetching image data or calling API:", error);
@@ -128,9 +130,13 @@ async function fetchImageDataAndCallApi(imageUrl, tabId) {
 
 
 // Updated function signature to accept the model
-async function callOpenRouter(imageDataUrl, apiKey, model, tabId, originalImageUrl) {
-  console.log(`Calling OpenRouter API with model: ${model}...`);
-  const prompt = "Describe this image briefly for alt-text, or transcribe any text within it. If the image is artistic (e.g., a painting, drawing, illustration), also briefly describe its style and mood if relevant. Provide only the description or transcription, without repeating these instructions.";
+async function callOpenRouter(imageDataUrl, apiKey, model, language, tabId, originalImageUrl) { // Added language parameter
+  console.log(`Calling OpenRouter API with model: ${model} and language: ${language}...`);
+  // Construct the prompt, adding the language instruction if not English (default)
+  let prompt = "Describe this image briefly for alt-text, or transcribe any text within it. If the image is artistic (e.g., a painting, drawing, illustration), also briefly describe its style and mood if relevant. Provide only the description or transcription, without repeating these instructions.";
+  if (language && language !== 'en') {
+      prompt += ` Respond in the language with code: ${language}.`;
+  }
   // Model is now passed as a parameter, no need to hardcode here
 
   try {
