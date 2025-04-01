@@ -132,11 +132,23 @@ async function fetchImageDataAndCallApi(imageUrl, tabId) {
 // Updated function signature to accept the model
 async function callOpenRouter(imageDataUrl, apiKey, model, language, tabId, originalImageUrl) { // Added language parameter
   console.log(`Calling OpenRouter API with model: ${model} and language: ${language}...`);
-  // Construct the prompt, adding the language instruction if not English (default)
-  let prompt = "Describe this image briefly for alt-text, or transcribe any text within it. If the image is artistic (e.g., a painting, drawing, illustration), also briefly describe its style and mood if relevant. Provide only the description or transcription, without repeating these instructions.";
-  if (language && language !== 'en') {
-      prompt += ` Respond in the language with code: ${language}.`;
-  }
+  // Construct the new structured prompt
+  const userLanguage = language || 'en'; // Default to English if not set
+  let prompt = `Analyze the image and provide the following information in the specified format:
+
+1.  **Classification:** Classify the image into ONE of the following categories: Photography, Artistic Style, News Media, Text Screenshot.
+2.  **Description/Transcription:** Describe the image briefly for alt-text OR transcribe any text within it.
+3.  **Language Handling:**
+    *   The primary response (description/transcription) MUST be in the language with code: ${userLanguage}.
+    *   If the image contains text and that text's language is DIFFERENT from ${userLanguage}, translate the text to ${userLanguage} for the main description AND note the original language detected.
+    *   If the image contains text and its language IS ${userLanguage}, or if the image contains no text, just provide the description/transcription in ${userLanguage} and state "N/A" for the original language.
+
+**Output Format (Strictly follow this structure, using these exact labels):**
+CLASSIFICATION: [Your Classification Here]
+ORIGINAL_LANGUAGE: [Original Language Code or N/A]
+DESCRIPTION: [Your Description or Transcription in ${userLanguage} Here]
+
+Do not include any other text, greetings, or explanations outside this structure.`;
   // Model is now passed as a parameter, no need to hardcode here
 
   try {
@@ -178,13 +190,38 @@ async function callOpenRouter(imageDataUrl, apiKey, model, language, tabId, orig
     const data = await response.json();
     console.log("OpenRouter API Response:", data);
 
-    const description = data.choices?.[0]?.message?.content?.trim();
+    const rawResponse = data.choices?.[0]?.message?.content?.trim();
 
-    if (description) {
-      // 4. Send description back to content script
-      console.log("Sending description to content script:", description);
+    if (rawResponse) {
+      // 4. Parse the structured response
+      let classification = "Unknown";
+      let originalLanguage = "N/A";
+      let description = rawResponse; // Default to full response if parsing fails
+
+      const classMatch = rawResponse.match(/CLASSIFICATION:\s*(.*)/i);
+      const langMatch = rawResponse.match(/ORIGINAL_LANGUAGE:\s*(.*)/i);
+      const descMatch = rawResponse.match(/DESCRIPTION:\s*([\s\S]*)/i); // Use [\s\S]* for multiline description
+
+      if (classMatch && classMatch[1]) {
+        classification = classMatch[1].trim();
+      }
+      if (langMatch && langMatch[1]) {
+        originalLanguage = langMatch[1].trim();
+      }
+      if (descMatch && descMatch[1]) {
+        description = descMatch[1].trim();
+      } else {
+         console.warn("Could not parse DESCRIPTION from response, sending raw response.");
+         // Keep description as rawResponse
+      }
+
+      console.log("Parsed Response - Classification:", classification, "Original Language:", originalLanguage, "Description:", description);
+
+      // 5. Send structured data back to content script
       chrome.tabs.sendMessage(tabId, {
         action: "displayDescription",
+        classification: classification,
+        originalLanguage: originalLanguage,
         description: description,
         imageUrl: originalImageUrl // Send original URL to identify the image
       });

@@ -115,14 +115,40 @@
   /* margin-bottom: 1em; */
 }
 
-/* Style for the disclaimer text */
-#bluegoo-overlay .disclaimer-text {
+/* --- Metadata Styles (Classification & Language) --- */
+/* Removed .metadata-container rule as the container div was removed from JS */
+
+#bluegoo-overlay .metadata-text { /* Now applies to <p> elements */
   font-size: 0.85em; /* Smaller font size */
   font-style: italic; /* Italic style */
+  opacity: 0.8; /* Slightly faded like disclaimer */
+  margin: 0 0 2px 0; /* Remove default p margin, add small bottom margin */
+  padding: 0;
+}
+
+/* Optional: Specific styling if needed */
+#bluegoo-overlay .classification-text {
+  /* Specific styles for classification */
+}
+#bluegoo-overlay .language-text {
+ /* Specific styles for language */
+}
+
+/* Style for the main description text (if needed, otherwise inherits from p) */
+#bluegoo-overlay .description-text {
+  /* Styles specific to the main description paragraph */
+  margin-bottom: 8px; /* Ensure space below description before buttons */
+}
+
+/* Style for the disclaimer text */
+#bluegoo-overlay .disclaimer-text {
+  font-size: 0.85em; /* Smaller font size (matches metadata) */
+  font-style: italic; /* Italic style (matches metadata) */
   margin-top: 10px; /* Space above the disclaimer */
-  margin-bottom: 0; /* No space below before buttons */
-  opacity: 0.8; /* Slightly faded */
+  margin-bottom: 0; /* No space below disclaimer */
+  opacity: 0.8; /* Slightly faded (matches metadata) */
   text-align: center; /* Center the disclaimer */
+  width: 100%; /* Ensure it takes full width for centering */
 }
 
 /* Styles for the old absolute positioned 'X' button removed */

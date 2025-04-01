@@ -13,6 +13,8 @@ BlueGoo is a browser extension designed as an accessibility tool to make interac
 *   **Copy Functionality:** Easily copy the generated text to your clipboard using the "Copy" button in the overlay.
 *   **Customizable Theme:** Choose between a Light or Dark theme for the overlay via the options page.
 *   **Close Button:** Dismiss the overlay easily with the "Close" button.
+*   **Multilingual Support:** Select your preferred language for descriptions in the options. If text in an image is detected in a different language, it will be translated, noting the original language. (Beta)
+*   **Image Classification:** Automatically classifies the image type (e.g., Photography, Artistic Style, Text Screenshot) displayed above the description.
 
 ## Models
 

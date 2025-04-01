@@ -12,7 +12,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     handlePrepareImage(request.imageUrl, sendResponse); // Changed function call, removed apiKey
     return true; // Indicate async response needed
   } else if (request.action === "displayDescription") {
-    displayOverlay(request.imageUrl, request.description, false);
+    // Receive structured data
+    displayOverlay(request.imageUrl, request.classification, request.originalLanguage, request.description, false);
     sendResponse({ status: "displayed" });
   } else if (request.action === "showError") {
     displayOverlay(request.imageUrl, request.message, true);
@@ -90,7 +91,8 @@ function findImageElement(srcUrl) {
 // (Loading indicator functions were previously removed)
 
 // Updated function to handle theme and centering/bounding
-async function displayOverlay(imageUrl, text, isError) {
+// Updated function signature to accept structured data
+async function displayOverlay(imageUrl, classification, originalLanguage, description, isError) {
   // (Loading indicator call was previously removed)
   removeWaitingOverlay(); // Remove the waiting overlay first
   removeOverlay(); // Remove any existing main overlay
@@ -124,9 +126,32 @@ async function displayOverlay(imageUrl, text, isError) {
   // Max height could also be set, e.g., overlay.style.maxHeight = `${imgRect.height - paddingValue * 2}px`;
   // but let's allow vertical overflow for now if needed, controlled by CSS overflow property if desired.
 
+  // --- Metadata Elements (Classification & Language) ---
+  // Create individual <p> elements for metadata, no container div
+
+  // Classification Element
+  const classificationElement = document.createElement('p'); // Use <p>
+  classificationElement.textContent = `Type: ${classification || 'Unknown'}`;
+  classificationElement.classList.add('metadata-text', 'classification-text');
+  // Append directly to overlay later
+
+  // Original Language Element (only if relevant)
+  let languageElement = null; // Initialize as null
+  if (originalLanguage && originalLanguage.toUpperCase() !== 'N/A') {
+    languageElement = document.createElement('p'); // Use <p>
+    // Use Intl.DisplayNames to get the full language name
+    const languageNames = new Intl.DisplayNames(['en'], { type: 'language' }); // Use 'en' for English names of languages
+    const fullLanguageName = languageNames.of(originalLanguage);
+    languageElement.textContent = `Original Language: ${fullLanguageName || originalLanguage}`; // Fallback to code if name not found
+    languageElement.classList.add('metadata-text', 'language-text');
+    // Append directly to overlay later
+  }
+
+  // --- Main Description Element ---
   const textElement = document.createElement('p');
-  textElement.textContent = text;
+  textElement.textContent = description; // Use the description part
   textElement.style.margin = '0'; // Let CSS handle margins/padding
+  textElement.classList.add('description-text'); // Add class for potential specific styling
 
   // Old close button ('X') removed
 
@@ -170,43 +195,61 @@ async function displayOverlay(imageUrl, text, isError) {
   buttonContainer.appendChild(copyButton);
   buttonContainer.appendChild(newCloseButton);
 
+  // Append metadata <p> elements first, then description <p>
+  overlay.appendChild(classificationElement);
+  if (languageElement) { // Only append if it was created
+      overlay.appendChild(languageElement);
+  }
   overlay.appendChild(textElement);
 
-  // Add disclaimer text
+  // Add disclaimer text (now appended after buttons)
   const disclaimerElement = document.createElement('p');
   disclaimerElement.textContent = 'BlueGoo uses generative AI and can make mistakes.';
   disclaimerElement.classList.add('disclaimer-text'); // Add class for styling
-  overlay.appendChild(buttonContainer); // Append the container with both buttons first
+
+  overlay.appendChild(buttonContainer); // Append the container with both buttons
   overlay.appendChild(disclaimerElement); // Then append the disclaimer
   // --- Positioning Logic (Centering) ---
   // Append to body temporarily to calculate overlay dimensions
   overlay.style.visibility = 'hidden'; // Hide while calculating
   document.body.appendChild(overlay);
-  const overlayWidth = overlay.offsetWidth;
-  const overlayHeight = overlay.offsetHeight;
+  // Use requestAnimationFrame to ensure dimensions are calculated after layout
+  requestAnimationFrame(() => {
+    const overlayWidth = overlay.offsetWidth;
+    const overlayHeight = overlay.offsetHeight;
 
-  // Calculate center of the image relative to the viewport
-  const imgCenterX = imgRect.left + imgRect.width / 2;
-  const imgCenterY = imgRect.top + imgRect.height / 2;
+    // If dimensions are still 0, log an error and maybe apply a default position?
+    if (overlayWidth === 0 || overlayHeight === 0) {
+        console.warn("Overlay dimensions calculated as zero. Positioning might be incorrect.");
+        // Potentially apply a fallback position near the image top-left?
+        // overlay.style.left = `${imgRect.left + window.scrollX + 5}px`;
+        // overlay.style.top = `${imgRect.top + window.scrollY + 5}px`;
+    } else {
+        // Calculate center of the image relative to the viewport
+        const imgCenterX = imgRect.left + imgRect.width / 2;
+        const imgCenterY = imgRect.top + imgRect.height / 2;
 
-  // Calculate desired top-left corner for the overlay to be centered
-  // Add scroll offsets to position relative to the document, not viewport
-  let overlayLeft = imgCenterX - overlayWidth / 2 + window.scrollX;
-  let overlayTop = imgCenterY - overlayHeight / 2 + window.scrollY;
+        // Calculate desired top-left corner for the overlay to be centered
+        // Add scroll offsets to position relative to the document, not viewport
+        let overlayLeft = imgCenterX - overlayWidth / 2 + window.scrollX;
+        let overlayTop = imgCenterY - overlayHeight / 2 + window.scrollY;
 
-  // Basic boundary check (prevent going too far off-screen left/top)
-  overlayLeft = Math.max(5 + window.scrollX, overlayLeft); // Keep at least 5px from left edge
-  overlayTop = Math.max(5 + window.scrollY, overlayTop);   // Keep at least 5px from top edge
+        // Basic boundary check (prevent going too far off-screen left/top)
+        overlayLeft = Math.max(5 + window.scrollX, overlayLeft); // Keep at least 5px from left edge
+        overlayTop = Math.max(5 + window.scrollY, overlayTop);   // Keep at least 5px from top edge
 
-  // Apply final position
-  overlay.style.left = `${overlayLeft}px`;
-  overlay.style.top = `${overlayTop}px`;
-  overlay.style.visibility = 'visible'; // Make visible now
+        // Apply final position
+        overlay.style.left = `${overlayLeft}px`;
+        overlay.style.top = `${overlayTop}px`;
+    }
+
+    overlay.style.visibility = 'visible'; // Make visible now
+  });
 
   document.body.appendChild(overlay);
   currentOverlay = overlay; // Store reference to the new overlay
 
-  console.log(`Overlay ${isError ? 'error' : 'description'} displayed for:`, imageUrl);
+  console.log(`Overlay ${isError ? 'error' : 'description'} displayed for:`, imageUrl, "Data:", { classification, originalLanguage, description });
 }
 
 // --- Waiting Overlay Functions ---
@@ -247,21 +290,28 @@ async function displayWaitingOverlay(imageUrl) {
   // Append temporarily to calculate dimensions
   overlay.style.visibility = 'hidden';
   document.body.appendChild(overlay);
-  const overlayWidth = overlay.offsetWidth;
-  const overlayHeight = overlay.offsetHeight;
+  // Use requestAnimationFrame for waiting overlay positioning too
+  requestAnimationFrame(() => {
+    const overlayWidth = overlay.offsetWidth;
+    const overlayHeight = overlay.offsetHeight;
 
-  const imgCenterX = imgRect.left + imgRect.width / 2;
-  const imgCenterY = imgRect.top + imgRect.height / 2;
+    if (overlayWidth === 0 || overlayHeight === 0) {
+        console.warn("Waiting overlay dimensions calculated as zero. Positioning might be incorrect.");
+    } else {
+        const imgCenterX = imgRect.left + imgRect.width / 2;
+        const imgCenterY = imgRect.top + imgRect.height / 2;
 
-  let overlayLeft = imgCenterX - overlayWidth / 2 + window.scrollX;
-  let overlayTop = imgCenterY - overlayHeight / 2 + window.scrollY;
+        let overlayLeft = imgCenterX - overlayWidth / 2 + window.scrollX;
+        let overlayTop = imgCenterY - overlayHeight / 2 + window.scrollY;
 
-  overlayLeft = Math.max(5 + window.scrollX, overlayLeft);
-  overlayTop = Math.max(5 + window.scrollY, overlayTop);
+        overlayLeft = Math.max(5 + window.scrollX, overlayLeft);
+        overlayTop = Math.max(5 + window.scrollY, overlayTop);
 
-  overlay.style.left = `${overlayLeft}px`;
-  overlay.style.top = `${overlayTop}px`;
-  overlay.style.visibility = 'visible';
+        overlay.style.left = `${overlayLeft}px`;
+        overlay.style.top = `${overlayTop}px`;
+    }
+    overlay.style.visibility = 'visible';
+  });
 
   // Re-append (or just ensure it's in the body)
   // document.body.appendChild(overlay); // Already appended
